@@ -2,12 +2,9 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView,ImageBackground} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 const { width, height } = Dimensions.get('window');
-
 const slider = StyleSheet.create({
   image: {width: 250,height: 150,marginHorizontal: 10,borderRadius: 20,resizeMode: 'contain'}
 })
-
-
 export default function App() {
   return (
     <ScrollView style={[styles.container, { height }]}>
