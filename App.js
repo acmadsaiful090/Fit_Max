@@ -1,5 +1,8 @@
 import * as React from 'react';
-import {Workouts} from './src/screens';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './src/Router';
 export default function App() {
-  return <Workouts />;
+  return (
+     <AppNavigator/>
+  );
 }

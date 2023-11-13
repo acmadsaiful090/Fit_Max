@@ -16,19 +16,19 @@ export default function App() {
   const items = [
     {
       text: 'Strength',
-      imageUrl: 'URL_GAMBAR_STRENGTH',
+      imageUrl: 'https://www.healthifyme.com/blog/wp-content/uploads/2021/11/How-to-Improve-Body-Strength-Exercises-and-Nutrition.jpg',
     },
     {
       text: 'HIIT,Cardio',
-      imageUrl: 'URL_GAMBAR_HIIT_CARDIO',
+      imageUrl: 'https://d1vbn70lmn1nqe.cloudfront.net/prod/wp-content/uploads/2022/08/16063337/4-gerakan-hiit-cardio-untuk-bakar-lemak-tubuh-halodoc.jpg.webp',
     },
     {
       text: 'Yoga,Streching',
-      imageUrl: 'URL_GAMBAR_YOGA_STRETCHING',
+      imageUrl: 'https://cdn0-production-images-kly.akamaized.net/D5iJKVYEJTJhWUd_9p2KilNOI-U=/640x853/smart/filters:quality(75):strip_icc():format(webp)/kly-media-production/medias/3645497/original/078735500_1637935690-Wheel_Yoga1.jpg',
     },
     {
       text: 'Warmup,Recovery',
-      imageUrl: 'URL_GAMBAR_WARMUP_RECOVERY',
+      imageUrl: 'https://img.freepik.com/premium-photo/black-woman-arm-stretching-fitness-workout-training-muscle-recovery-pain-relief-healthcare-wellness-portrait-runner-sports-athlete-warm-up-exercise-marathon-running-goals_590464-109959.jpg?w=826',
     },
   ];
 
