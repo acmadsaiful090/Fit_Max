@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView, ImageBackground,Animated,TouchableOpacity  } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ImageSlider from '../../../components/ImageSlider';
 import { images} from '../../../components/ImageSlider';
@@ -7,6 +7,29 @@ import { Items} from '../../../components/Items';
 const { width, height } = Dimensions.get('window');
 export default function App() {
 const [searchText, setSearchText] = useState('');
+const [cardAnimation] = useState(new Animated.Value(1000));
+const animateCard = () => {
+  Animated.timing(cardAnimation, {
+    toValue: 0,
+    duration: 500,
+    useNativeDriver: true,
+  }).start();
+};
+useEffect(() => {
+  animateCard(); 
+}, []);
+const renderItems = () => {
+  return Items.map((item, index) => (
+    <TouchableOpacity
+      key={index}
+      style={[styles.item, { transform: [{ translateX: cardAnimation }] }]}
+      onPress={animateCard}
+    >
+      <Image source={{ uri: item.imageUri }} style={styles.image} />
+      <Text style={styles.itemText}>{item.text}</Text>
+    </TouchableOpacity>
+  ));
+};
  return (
     <ScrollView style={[styles.container, { height }]}>
       <View style={styles.cardContainer}>
@@ -32,14 +55,7 @@ const [searchText, setSearchText] = useState('');
         </View>
       </View>
       <View style={styles.card}>
-        <View style={styles.row}>
-        {Items.map((item, index) => (
-            <View style={styles.item} key={index}>
-              <Image source={{ uri: item.imageUri }} style={styles.image} />
-              <Text style={styles.itemText}>{item.text}</Text>
-            </View>
-          ))}
-        </View>
+      <View style={styles.row}>{renderItems()}</View>
         <ScrollView horizontal style={{ marginTop: 20 }}>
           <ImageSlider images={images} />
         </ScrollView>

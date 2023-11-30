@@ -1,27 +1,52 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, ScrollView, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, Dimensions, ScrollView, ImageBackground,Animated  } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { ChartCircle,ArrowRight2,Share,HuobiToken,Forward5Seconds,Crown,Edit,Notification,Sound,Ghost } from 'iconsax-react-native';
 const { width, height } = Dimensions.get('window');
 
 export default function App() {
+  const [scrollY] = useState(new Animated.Value(0)); // Gunakan state untuk mengontrol posisi scroll
+
+  const profileOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0],
+    extrapolate: 'clamp', 
+  });
+
+  const [fadeIn] = useState(new Animated.Value(0)); 
+
+  useEffect(() => {
+    Animated.timing(fadeIn, {
+      toValue: 1,
+      duration: 1000, 
+      useNativeDriver: true, 
+    }).start(); 
+  }, []);
+
   return (
-    <ScrollView style={[styles.container, { height }]}>
-      <View style={styles.profileContainer}>
-        <Image
-          source={{ uri: 'https://www.verywellmind.com/thmb/fcB45Y2_4efpRrcrkxliTqk6EmU=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/GettyImages-4660327211-56b5fae93df78c0b13571d1e.jpg' }}
-          style={styles.profileImage}
-        />
-        <Text style={styles.profileName}>Jhoni Mangan Sate</Text>
-      </View>
-         <View style={styles.cardContainer}>
-         <ChartCircle size="60" color="#FF8A65"/>
-          <View style={styles.textContainer}>
-            <Text style={styles.title}>State</Text>
-            <Text style={styles.content}>Check Your Activity and Progress</Text>
-          </View>
-          <ArrowRight2 size="32" color="#FF8A65"/>
+    <ScrollView style={[styles.container, { height }]}
+    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+      useNativeDriver: false,
+    })}
+    scrollEventThrottle={16} >
+    <Animated.View style={[styles.profileContainer, { opacity: profileOpacity }]}>
+      <Image
+        source={{
+          uri:
+            'https://www.verywellmind.com/thmb/fcB45Y2_4efpRrcrkxliTqk6EmU=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/GettyImages-4660327211-56b5fae93df78c0b13571d1e.jpg',
+        }}
+        style={styles.profileImage}
+      />
+      <Text style={styles.profileName}>Jhoni Mangan Sate</Text>
+    </Animated.View>
+      <Animated.View style={[styles.cardContainer, { opacity: fadeIn }]}>
+        <ChartCircle size="60" color="#FF8A65"/>
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>State</Text>
+          <Text style={styles.content}>Check Your Activity and Progress</Text>
         </View>
+        <ArrowRight2 size="32" color="#FF8A65"/>
+      </Animated.View>
         <View style={styles.MyJourny}>
         <Text style={styles.MyTeks}>My journey</Text>
         <View style={styles.Share}>
