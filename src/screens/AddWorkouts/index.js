@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import axios from 'axios'; // Import axios library
 
 const WorkoutInput = () => {
   const [workoutName, setWorkoutName] = useState('');
 
   const handleWorkoutSubmit = () => {
-    console.log('Nama latihan:', workoutName);
+    // Kirim data workoutName ke API menggunakan axios
+    axios.post('https://6576eb76197926adf62cc403.mockapi.io/data', {
+      nama: workoutName,
+    })
+      .then((response) => {
+        console.log('Data berhasil ditambahkan:', response.data);
+        // Tambahkan logika lain yang diperlukan setelah menambahkan data ke API
+      })
+      .catch((error) => {
+        console.error('Error adding data:', error);
+      });
   };
 
   return (
@@ -15,7 +26,7 @@ const WorkoutInput = () => {
         style={styles.input}
         placeholder="Cardio, Squats, Yoga, dll."
         value={workoutName}
-        onChangeText={text => setWorkoutName(text)}
+        onChangeText={(text) => setWorkoutName(text)}
       />
       <TouchableOpacity style={styles.button} onPress={handleWorkoutSubmit}>
         <Text style={styles.buttonText}>Custom Workouts</Text>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView,TouchableOpacity } from 'react-native';
+import { View, Modal,Text,TextInput,Button, Image, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
 const { width, height } = Dimensions.get('window');
 
 const Card = ({ text, imageUrl }) => (
@@ -12,6 +13,14 @@ const Card = ({ text, imageUrl }) => (
     </View>
   </View>
 );
+const Card2 = ({ text }) => (
+  <View style={styles.cardContainer}>
+    <View style={styles.cardContent}>
+      <Text style={styles.cardText}>{text}</Text>
+    </View>
+  </View>
+);
+
 
 export default function App() {
   const items = [
@@ -33,10 +42,62 @@ export default function App() {
     },
   ];
   const navigation = useNavigation();
-  const [searchText, setSearchText] = useState('');
+  const [customWorkouts, setCustomWorkouts] = useState([]);
+  const [updatedData, setUpdatedData] = useState({ nama: '' });
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [updatedNama, setUpdatedNama] = useState('');
+
+  const handleUpdatePress = (itemId, nama) => {
+    setSelectedItemId(itemId);
+    setUpdatedNama(nama);
+    setShowModal(true);
+  };
+
+
+  useEffect(() => {
+    // Mengambil data dari API saat komponen di-mount
+    axios.get('https://6576eb76197926adf62cc403.mockapi.io/data')
+      .then((response) => {
+        setCustomWorkouts(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
   const handleCustomWorkoutsPress = () => {
     navigation.navigate('AddWorkouts');
   };
+
+  const handleDelete = (itemId) => {
+    // Hapus item berdasarkan ID dari API
+    axios.delete(`https://6576eb76197926adf62cc403.mockapi.io/data/${itemId}`)
+      .then(() => {
+        // Setelah menghapus, perbarui tampilan dengan memperbarui state
+        setCustomWorkouts(customWorkouts.filter((item) => item.id !== itemId));
+      })
+      .catch((error) => {
+        console.error('Error deleting item:', error);
+      });
+  };
+  const handleSave = () => {
+    // Lakukan perubahan atau pembaruan berdasarkan nilai updatedNama dan selectedItemId
+    const itemId = selectedItemId;
+    const updatedData = { nama: updatedNama };
+  
+    axios.put(`https://6576eb76197926adf62cc403.mockapi.io/data/${itemId}`, updatedData)
+      .then(() => {
+        setCustomWorkouts(
+          customWorkouts.map((item) => (item.id === itemId ? { ...item, ...updatedData } : item))
+        );
+        setShowModal(false);
+      })
+      .catch((error) => {
+        console.error('Error updating item:', error);
+      });
+  };  
+
   return (
     <View style={[styles.container, { height }]}>
       <View style={styles.header}>
@@ -48,8 +109,48 @@ export default function App() {
           <Card key={index} text={item.text} imageUrl={item.imageUrl} />
         ))}
          <TouchableOpacity onPress={handleCustomWorkoutsPress}>
+         {customWorkouts.map((item, index) => (
+        <View key={index} style={styles.customCardContainer}>
+          <Card2 text={item.nama} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.updateButton]}
+              onPress={() => handleUpdatePress(item.id, item.nama)}
+            >
+              <Text style={styles.buttonText}>Update</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.deleteButton]}
+              onPress={() => handleDelete(item.id)}
+            >
+              <Text style={styles.buttonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))}
+
+ {/* Modal */}
+  <Modal visible={showModal} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Update Nama</Text>
+            <TextInput
+              style={styles.input}
+              value={updatedNama}
+              onChangeText={(text) => setUpdatedNama(text)}
+            />
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.buttonText}>Simpan</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowModal(false)}>
+              <Text style={styles.buttonText}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
       <View style={styles.cardfoter}>
-     
       <View style={styles.cardFooterContent}>
         <View style={styles.textContainer}>
           <Text style={styles.customWorkoutsText}>Custom Workouts</Text>
@@ -137,4 +238,67 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'black',
   },
+  customCardContainer: {
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  button: {
+    borderRadius: 5,
+    paddingVertical: 8,
+    width: '48%',
+  },
+  updateButton: {
+    backgroundColor: 'green',
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    width: '100%',
+    height: '100%',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '80%',
+    height: '50%',
+  },
+  
+  input: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    width: '80%',
+    padding: 10,
+    marginVertical: 10,
+  },
+  saveButton: {
+    backgroundColor: 'green',
+    borderRadius: 5,
+    paddingVertical: 8,
+    width: '48%',
+  },
+  cancelButton: {
+    backgroundColor: 'red',
+    borderRadius: 5,
+    paddingVertical: 8,
+    width: '48%',
+  },
+  
 });
