@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Modal,Text,TextInput,Button, Image, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import axios from 'axios';
+import firestore from '@react-native-firebase/firestore'; 
 const { width, height } = Dimensions.get('window');
 
 const Card = ({ text, imageUrl }) => (
@@ -48,55 +48,54 @@ export default function App() {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [updatedNama, setUpdatedNama] = useState('');
 
+  useEffect(() => {
+    // Mengambil data dari Firestore saat komponen di-mount
+    const fetchData = async () => {
+      try {
+        const snapshot = await firestore().collection('workouts').get();
+        const fetchedData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCustomWorkouts(fetchedData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleDelete = async (itemId) => {
+    // Hapus item dari Firestore berdasarkan ID
+    try {
+      await firestore().collection('workouts').doc(itemId).delete();
+      setCustomWorkouts(customWorkouts.filter((item) => item.id !== itemId));
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  const handleSave = async () => {
+    // Lakukan perubahan atau pembaruan berdasarkan nilai updatedNama dan selectedItemId di Firestore
+    const itemId = selectedItemId;
+
+    try {
+      await firestore().collection('workouts').doc(itemId).update({ nama: updatedNama });
+      setCustomWorkouts(
+        customWorkouts.map((item) => (item.id === itemId ? { ...item, nama: updatedNama } : item))
+      );
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
   const handleUpdatePress = (itemId, nama) => {
     setSelectedItemId(itemId);
     setUpdatedNama(nama);
     setShowModal(true);
   };
-
-
-  useEffect(() => {
-    // Mengambil data dari API saat komponen di-mount
-    axios.get('https://6576eb76197926adf62cc403.mockapi.io/data')
-      .then((response) => {
-        setCustomWorkouts(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, []);
-
   const handleCustomWorkoutsPress = () => {
     navigation.navigate('AddWorkouts');
   };
 
-  const handleDelete = (itemId) => {
-    // Hapus item berdasarkan ID dari API
-    axios.delete(`https://6576eb76197926adf62cc403.mockapi.io/data/${itemId}`)
-      .then(() => {
-        // Setelah menghapus, perbarui tampilan dengan memperbarui state
-        setCustomWorkouts(customWorkouts.filter((item) => item.id !== itemId));
-      })
-      .catch((error) => {
-        console.error('Error deleting item:', error);
-      });
-  };
-  const handleSave = () => {
-    // Lakukan perubahan atau pembaruan berdasarkan nilai updatedNama dan selectedItemId
-    const itemId = selectedItemId;
-    const updatedData = { nama: updatedNama };
-  
-    axios.put(`https://6576eb76197926adf62cc403.mockapi.io/data/${itemId}`, updatedData)
-      .then(() => {
-        setCustomWorkouts(
-          customWorkouts.map((item) => (item.id === itemId ? { ...item, ...updatedData } : item))
-        );
-        setShowModal(false);
-      })
-      .catch((error) => {
-        console.error('Error updating item:', error);
-      });
-  };  
 
   return (
     <View style={[styles.container, { height }]}>
@@ -110,44 +109,45 @@ export default function App() {
         ))}
          <TouchableOpacity onPress={handleCustomWorkoutsPress}>
          {customWorkouts.map((item, index) => (
-        <View key={index} style={styles.customCardContainer}>
-          <Card2 text={item.nama} />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.updateButton]}
-              onPress={() => handleUpdatePress(item.id, item.nama)}
-            >
-              <Text style={styles.buttonText}>Update</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.deleteButton]}
-              onPress={() => handleDelete(item.id)}
-            >
-              <Text style={styles.buttonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
+          <TouchableOpacity key={index} onPress={() => handleUpdatePress(item.id, item.nama)}>
+            <View style={styles.customCardContainer}>
+              <Card2 text={item.nama} />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.updateButton]}
+                  onPress={() => handleUpdatePress(item.id, item.nama)}
+                >
+                  <Text style={styles.buttonText}>Update</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.deleteButton]}
+                  onPress={() => handleDelete(item.id)}
+                >
+                  <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
 
- {/* Modal */}
-  <Modal visible={showModal} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text>Update Nama</Text>
-            <TextInput
-              style={styles.input}
-              value={updatedNama}
-              onChangeText={(text) => setUpdatedNama(text)}
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.buttonText}>Simpan</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowModal(false)}>
-              <Text style={styles.buttonText}>Batal</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+<Modal visible={showModal} transparent={true} animationType="slide">
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text>Update Nama</Text>
+      <TextInput
+        style={styles.input}
+        value={updatedNama}
+        onChangeText={(text) => setUpdatedNama(text)}
+      />
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.buttonText}>Simpan</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.cancelButton} onPress={() => setShowModal(false)}>
+        <Text style={styles.buttonText}>Batal</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
 
 
       <View style={styles.cardfoter}>

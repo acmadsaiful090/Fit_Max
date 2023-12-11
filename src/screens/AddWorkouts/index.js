@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import axios from 'axios'; // Import axios library
+import firestore from '@react-native-firebase/firestore'; // Import firestore from @react-native-firebase/firestore
 
 const WorkoutInput = () => {
   const [workoutName, setWorkoutName] = useState('');
 
   const handleWorkoutSubmit = () => {
-    // Kirim data workoutName ke API menggunakan axios
-    axios.post('https://6576eb76197926adf62cc403.mockapi.io/data', {
-      nama: workoutName,
-    })
-      .then((response) => {
-        console.log('Data berhasil ditambahkan:', response.data);
-        // Tambahkan logika lain yang diperlukan setelah menambahkan data ke API
+    // Tambahkan data workoutName ke Firestore
+    firestore()
+      .collection('workouts') // Ganti 'workouts' dengan nama koleksi yang Anda inginkan
+      .add({
+        nama: workoutName,
+      })
+      .then(() => {
+        console.log('Data berhasil ditambahkan ke Firestore!');
+        // Tambahkan logika lain yang diperlukan setelah menambahkan data ke Firestore
       })
       .catch((error) => {
         console.error('Error adding data:', error);
