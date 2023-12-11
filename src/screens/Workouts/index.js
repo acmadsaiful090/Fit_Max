@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { View, Text, Image, StyleSheet, TextInput, Dimensions, ScrollView,TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 const { width, height } = Dimensions.get('window');
 
@@ -31,9 +32,11 @@ export default function App() {
       imageUrl: 'https://img.freepik.com/premium-photo/black-woman-arm-stretching-fitness-workout-training-muscle-recovery-pain-relief-healthcare-wellness-portrait-runner-sports-athlete-warm-up-exercise-marathon-running-goals_590464-109959.jpg?w=826',
     },
   ];
-
+  const navigation = useNavigation();
   const [searchText, setSearchText] = useState('');
-
+  const handleCustomWorkoutsPress = () => {
+    navigation.navigate('AddWorkouts');
+  };
   return (
     <View style={[styles.container, { height }]}>
       <View style={styles.header}>
@@ -44,7 +47,9 @@ export default function App() {
         {items.map((item, index) => (
           <Card key={index} text={item.text} imageUrl={item.imageUrl} />
         ))}
+         <TouchableOpacity onPress={handleCustomWorkoutsPress}>
       <View style={styles.cardfoter}>
+     
       <View style={styles.cardFooterContent}>
         <View style={styles.textContainer}>
           <Text style={styles.customWorkoutsText}>Custom Workouts</Text>
@@ -56,7 +61,9 @@ export default function App() {
           <Icon name="arrow-right" size={34} color="black" />
         </View>
       </View>
+      
     </View>
+    </TouchableOpacity>
       </ScrollView>
     </View>
   );

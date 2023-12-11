@@ -1,43 +1,47 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, Workouts, Profile } from '../screens';
+import { NavigationContainer } from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 import { TrendUp, People, Home2 } from 'iconsax-react-native';
+import { Home, Profile,Workouts,AddWorkouts } from '../screens';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator(); 
+
+const WorkoutsNavigator = () => {
+  return (
+    <Stack.Navigator initialRouteName="WorkoutsScreen">
+      <Stack.Screen
+        name="WorkoutsScreen"
+        component={Workouts}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddWorkouts"
+        component={AddWorkouts}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          tabBarActiveTintColor: 'blue',
-          tabBarInactiveTintColor: 'gray',
-          tabBarStyle: {
-            height: 60,
-          },
-          tabBarItemStyle: {
-            justifyContent: 'center',
-          },
-          tabBarIconStyle: {
-            marginBottom: 5, 
-          },
-        }}
-      >
+      <Tab.Navigator>
         <Tab.Screen
           name="Home"
           component={Home}
           options={{
-            headerShown: false, 
+            headerShown: false,
             tabBarIcon: ({ color, size }) => <Home2 color={color} size={size + 5} />,
           }}
         />
         <Tab.Screen
           name="Workouts"
-          component={Workouts}
+          component={WorkoutsNavigator}
           options={{
-            headerShown: false, 
+            headerShown: false,
             tabBarIcon: ({ color, size }) => <TrendUp color={color} size={size + 5} />,
           }}
         />
@@ -45,7 +49,7 @@ const AppNavigator = () => {
           name="Profile"
           component={Profile}
           options={{
-            headerShown: false, 
+            headerShown: false,
             tabBarIcon: ({ color, size }) => <People color={color} size={size + 5} />,
           }}
         />
