@@ -49,22 +49,20 @@ export default function App() {
   const [updatedNama, setUpdatedNama] = useState('');
 
   useEffect(() => {
-    // Mengambil data dari Firestore saat komponen di-mount
     const fetchData = async () => {
       try {
         const snapshot = await firestore().collection('workouts').get();
         const fetchedData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCustomWorkouts(fetchedData);
+        setCustomWorkouts(fetchedData); // Update the state with fetched data
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
+  
     fetchData();
   }, []);
 
   const handleDelete = async (itemId) => {
-    // Hapus item dari Firestore berdasarkan ID
     try {
       await firestore().collection('workouts').doc(itemId).delete();
       setCustomWorkouts(customWorkouts.filter((item) => item.id !== itemId));
@@ -147,8 +145,6 @@ export default function App() {
     </View>
   </View>
 </Modal>
-
-
       <View style={styles.cardfoter}>
       <View style={styles.cardFooterContent}>
         <View style={styles.textContainer}>
