@@ -74,7 +74,6 @@ export default function App() {
   };
 
   const handleSave = async () => {
-    // Lakukan perubahan atau pembaruan berdasarkan nilai updatedNama dan selectedItemId di Firestore
     const itemId = selectedItemId;
 
     try {
